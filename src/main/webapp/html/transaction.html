@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transactions - Banking App</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        async function loadTransactions() {
+            const response = await fetch("/api/transactions");
+            const transactions = await response.json();
+            const table = document.getElementById("transactionTableBody");
+            table.innerHTML = "";
+            transactions.forEach(txn => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${txn.bankTransactionId}</td>
+                        <td>${txn.bankTransactionFromAccount}</td>
+                        <td>${txn.bankTransactionToAccount}</td>
+                        <td>${txn.amount}</td>
+                        <td>${txn.transactionDate}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function createTransaction() {
+            const txn = {
+                bankTransactionFromAccount: document.getElementById("fromAccount").value,
+                bankTransactionToAccount: document.getElementById("toAccount").value,
+                amount: document.getElementById("amount").value
+            };
+            await fetch("/api/transactions", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(txn)
+            });
+            loadTransactions();
+        }
+
+        window.onload = loadTransactions;
+    </script>
+</head>
+<body>
+    <h1>Transaction Management</h1>
+    <form onsubmit="event.preventDefault(); createTransaction();">
+        <label>From Account: </label>
+        <input type="text" id="fromAccount" required><br><br>
+
+        <label>To Account: </label>
+        <input type="text" id="toAccount" required><br><br>
+
+        <label>Amount: </label>
+        <input type="number" id="amount" required><br><br>
+
+        <button type="submit">Create Transaction</button>
+    </form>
+
+    <h2>Transaction List</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>From Account</th>
+                <th>To Account</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="transactionTableBody"></tbody>
+    </table>
+</body>
+</html>
